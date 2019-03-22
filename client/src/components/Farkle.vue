@@ -135,19 +135,33 @@ export default {
       }
       alert("Scores for " + player + ":\n" + scoreString);
     },
-    getMessage() {
-      const path = 'http://localhost:5000/ping';
+    getScores() {
+      const path = 'http://localhost:5000/farkle';
       axios.get(path)
         .then((res) => {
-          this.msg = res.data;
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
+          console.log(res.data);
+        }).catch((error) => {
           console.error(error);
         });
     },
+    recordScore(payload) {
+      const path = 'http://localhost:5000/farkle';
+      axios.post(path, payload)
+        .then(() => {
+          this.getScores();
+        }).catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          this.getScores();
+        });
+    }
   },
   watch: {
   },
+  created() {
+    console.log('boop');
+    this.getScores();
+    this.recordScore({player: '"shane"', score: '5000'})
+  }
 };
 </script>

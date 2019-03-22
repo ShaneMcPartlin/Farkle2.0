@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from flask.ext.mysql import MySQL
+from flaskext.mysql import MySQL
 
 # configuration
 DEBUG = True
@@ -19,22 +19,26 @@ mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'shane'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'password'
 app.config['MYSQL_DATABASE_DB'] = 'farkle'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_HOST'] = '127.0.0.1'
 mysql.init_app(app)
 
 conn = mysql.connect()
-cursor = mysql.cursor()
+cursor = conn.cursor()
 
 @app.route('/farkle', methods=['GET', 'POST'])
 def scores():
-    response_object = {"status":"success"}
     if request.method == "POST":
-        # do the thing for posting a high score
-        return
-    else if request.method == "GET":
-        # get the top 10 high scores
-        return
-    return jsonify(response_object)
+        post_data = request.get_json()
+        values = post_data.get("player") + ", " + post_data.get("score")
+        cursor.execute("INSERT INTO high_scores(player, score) VALUES(" + values + ")")
+        conn.commit()
+        return "scores added successfully"
+    elif request.method == "GET":
+        cursor.execute("SELECT * FROM high_scores LIMIT 10")
+        r = [dict((cursor.description[i][0], value) for i, value in enumerate(row)) for row in cursor.fetchall()]
+        return jsonify({'myCollection' : r})
+    else:
+        return "unaccepted method"
 
 if __name__ == '__main__':
     app.run()
