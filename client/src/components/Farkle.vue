@@ -12,7 +12,7 @@
                    placeholder="Enter player name">
           </div>
           <div class="small-2 columns">
-            <a href="#" v-on:click="addPlayer" class="button postfix">Add</a>
+            <a href="#/farkle" v-on:click="addPlayer" class="button postfix">Add</a>
           </div>
         </div>
         <div v-if="players.length > 0">
@@ -21,11 +21,25 @@
               <h3>{{player}}</h3>
             </div>
             <div class="small-2 columns">
-              <a href="#" v-on:click="removePlayer(player)" class="button alert postfix">-</a>
+              <a href="#/farkle"
+                 v-on:click="removePlayer(player)"
+                 class="button alert postfix">-</a>
             </div>
           </div>
         </div>
-        <a href="#" v-on:click="startGame" class="button success medium-12 columns">Start Game</a>
+        <a href="#/farkle"
+          v-on:click="startGame"
+          class="button success medium-12 columns">
+          Start Game
+        </a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="medium-offset-4 medium-4 columns">
+          <h4>High Scores:</h4>
+          <h4 v-for="(item, index) in highScores" v-bind:key="index">
+            {{index + 1}}) {{item.player}} - {{item.score}}
+          </h4>
       </div>
     </div>
 
@@ -55,14 +69,14 @@
           </div>
             <div class="row collapse">
               <div class="small-6 columns">
-                <a href="#"
+                <a href="#/farkle"
                   v-on:click="prevPlayer"
                   class="button secondary medium-12 columns">
-                  Previous Player
+                  Last Player
                 </a>
               </div>
               <div class="small-6 columns">
-                <a href="#"
+                <a href="#/farkle"
                    v-on:click="nextPlayer"
                    class="button primary medium-12 columns">
                    Next Player
@@ -91,7 +105,8 @@ export default {
       scores: null,
       curPlayer: 0,
       gameRunning: false,
-      curScore: 0
+      curScore: 0,
+      highScores: []
     }
   },
   methods: {
@@ -112,7 +127,7 @@ export default {
     },
     addPoints() {
       this.scores.get(this.players[this.curPlayer]).push(parseInt(this.curScore));
-      this.curScore = null;
+      this.curScore = 0;
     },
     nextPlayer() {
       this.curPlayer = (this.curPlayer + 1) % this.players.length;
@@ -124,7 +139,13 @@ export default {
       let getSum = function(total, num) {
         return total + num;
       }
-      return this.scores.get(player).reduce(getSum);
+      let total = this.scores.get(player).reduce(getSum)
+      //record high scores
+      if (total > 10000) {
+        console.log("console.boop");
+        this.recordScore({player: `'${this.players[this.curPlayer]}'`, score: `${total}`})
+      }
+      return total;
     },
     showTotals(player) {
       let accumulatedScore = 0;
@@ -139,7 +160,8 @@ export default {
       const path = 'http://localhost:5000/farkle';
       axios.get(path)
         .then((res) => {
-          console.log(res.data);
+          this.highScores = res.data.myCollection;
+          // console.log(res.data);
         }).catch((error) => {
           console.error(error);
         });
@@ -159,9 +181,8 @@ export default {
   watch: {
   },
   created() {
-    console.log('boop');
     this.getScores();
-    this.recordScore({player: '"shane"', score: '5000'})
+    // this.recordScore({player: '"shane"', score: '5000'})
   }
 };
 </script>

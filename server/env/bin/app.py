@@ -34,7 +34,7 @@ def scores():
         conn.commit()
         return "scores added successfully"
     elif request.method == "GET":
-        cursor.execute("SELECT * FROM high_scores LIMIT 10")
+        cursor.execute("SELECT * FROM high_scores ORDER BY score DESC LIMIT 10")
         r = [dict((cursor.description[i][0], value) for i, value in enumerate(row)) for row in cursor.fetchall()]
         return jsonify({'myCollection' : r})
     else:
