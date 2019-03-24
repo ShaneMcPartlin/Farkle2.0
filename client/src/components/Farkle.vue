@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!gameRunning">
+    <div v-if="!gameRunning" class="start-view">
 
     <div class="row">
       <div class="medium-offset-4 medium-4 columns">
@@ -12,7 +12,7 @@
                    placeholder="Enter player name">
           </div>
           <div class="small-2 columns">
-            <a href="#/farkle" v-on:click="addPlayer" class="button postfix">Add</a>
+            <a href="#" v-on:click="addPlayer" class="button postfix">Add</a>
           </div>
         </div>
         <div v-if="players.length > 0">
@@ -21,13 +21,13 @@
               <h3>{{player}}</h3>
             </div>
             <div class="small-2 columns">
-              <a href="#/farkle"
+              <a href="#"
                  v-on:click="removePlayer(player)"
                  class="button alert postfix">-</a>
             </div>
           </div>
         </div>
-        <a href="#/farkle"
+        <a href="#"
           v-on:click="startGame"
           class="button success medium-12 columns">
           Start Game
@@ -44,7 +44,7 @@
     </div>
 
     </div>
-    <div v-else>
+    <div v-else class="game-view">
 
       <div class="row">
         <div class="medium-4 columns">
@@ -69,14 +69,14 @@
           </div>
             <div class="row collapse">
               <div class="small-6 columns">
-                <a href="#/farkle"
+                <a href="#"
                   v-on:click="prevPlayer"
                   class="button secondary medium-12 columns">
                   Last Player
                 </a>
               </div>
               <div class="small-6 columns">
-                <a href="#/farkle"
+                <a href="#"
                    v-on:click="nextPlayer"
                    class="button primary medium-12 columns">
                    Next Player
@@ -142,8 +142,7 @@ export default {
       let total = this.scores.get(player).reduce(getSum)
       //record high scores
       if (total > 10000) {
-        console.log("console.boop");
-        this.recordScore({player: `'${this.players[this.curPlayer]}'`, score: `${total}`})
+        this.recordScore({player: `'${this.players[this.curPlayer]}'`, score: `${total}`});
       }
       return total;
     },
@@ -154,14 +153,14 @@ export default {
         accumulatedScore += this.scores.get(player)[i];
         scoreString += (accumulatedScore + "\n");
       }
-      alert("Scores for " + player + ":\n" + scoreString);
+      console.log("Scores for " + player + ":\n" + scoreString);
+      return "Scores for " + player + ":\n" + scoreString;
     },
     getScores() {
       const path = 'http://localhost:5000/farkle';
       axios.get(path)
         .then((res) => {
           this.highScores = res.data.myCollection;
-          // console.log(res.data);
         }).catch((error) => {
           console.error(error);
         });
@@ -179,10 +178,14 @@ export default {
     }
   },
   watch: {
+    curScore() {
+      if (this.curScore == '') {
+        this.curScore = 0;
+      }
+    }
   },
   created() {
     this.getScores();
-    // this.recordScore({player: '"shane"', score: '5000'})
   }
 };
 </script>
